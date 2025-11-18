@@ -1,0 +1,1 @@
+export const authRootSelector = (state: any) => state.auth
