@@ -13,11 +13,11 @@ export function Login() {
     const dispatch = useDispatch()
 
 	return (
-		<div className='flex flex-col items-center gap-2'>
+		<div className='flex flex-col items-center gap-4'>
 			<img src='/logo.png' alt='Logo' />
 			<h1 className='font-bold text-2xl'>Login to Circle</h1>
 			<form
-				className='flex flex-col gap-3'
+				className='flex flex-col gap-2'
 				onSubmit={(e) => {
 					e.preventDefault()
 					fetch('http://localhost:3000/api/v1/auth/login', {
@@ -41,9 +41,9 @@ export function Login() {
 			>
 				<Input
 					className='border-gray-700'
-					placeholder='Email'
+					placeholder='Email / Username'
 					required
-					type='email'
+					type='text'
 					value={email}
 					onChange={(e) => setEmail(e.target.value)}
 				/>
@@ -56,7 +56,8 @@ export function Login() {
 					onChange={(e) => setPassword(e.target.value)}
 				/>
 				{error && <p className='text-red-500'>{error}</p>}
-				<Button className='hover:cursor-pointer bg-green-600 hover:bg-green-900'>
+				<Link className='text-right text-xs' to='/'>Forgot Password?</Link>
+				<Button className='hover:cursor-pointer bg-green-600 hover:bg-green-900 rounded-4xl'>
 					Login
 				</Button>
 			</form>

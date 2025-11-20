@@ -5,26 +5,43 @@ import { Register } from './pages/Register'
 import { PersistGate } from 'redux-persist/integration/react'
 import { Provider } from 'react-redux'
 import { persistor, store } from './config/redux/store'
-import { Home } from './pages/Home'
 import { PrivateRoute } from './lib/PrivateRoute'
+import { ScrollArea } from './components/ui/scroll-area'
+import { Sidebar } from './components/Sidebar'
+import { ThreadList } from './pages/ThreadList'
+import { ThreadDetail } from './pages/ThreadDetail'
 
 function App() {
 	return (
 		<Provider store={store}>
 			<PersistGate loading={null} persistor={persistor}>
 				<BrowserRouter>
-					<Routes>
-						<Route path='/login' element={<Login />} />
-						<Route path='/register' element={<Register />} />
-						<Route
-							path='/home'
-							element={
-								<PrivateRoute>
-									<Home />
-								</PrivateRoute>
-							}
-						/>
-					</Routes>
+					<div className='flex'>
+						<Sidebar />
+						<ScrollArea className='h-screen border-r'>
+							<Routes>
+								<Route path='/login' element={<Login />} />
+								<Route path='/register' element={<Register />} />
+								<Route
+									path='/home'
+									element={
+										<PrivateRoute>
+											<ThreadList />
+										</PrivateRoute>
+									}
+								/>
+								<Route
+									path='/thread/:threadId'
+									element={
+										<PrivateRoute>
+											<ThreadDetail />
+										</PrivateRoute>
+									}
+								/>
+							</Routes>
+						</ScrollArea>
+						<div></div>
+					</div>
 				</BrowserRouter>
 			</PersistGate>
 		</Provider>

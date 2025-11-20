@@ -47,9 +47,9 @@ model Threads {
   content           String
   image             String    @default("")
   number_of_replies Int       @default(0)
-  created_at        DateTime  @default(now())
+  created_at        DateTime  @default(now()) @db.Timestamptz(6)
   created_by        Int
-  updated_at        DateTime  @updatedAt
+  updated_at        DateTime  @updatedAt @db.Timestamptz(6)
   updated_by        Int
   creator           User      @relation(fields: [created_by], references: [id], name: "creator")
   updater           User      @relation(fields: [updated_by], references: [id], name: "updater")
@@ -58,25 +58,28 @@ model Threads {
 }
 
 model Replies {
-  id         Int      @id @default(autoincrement())
+  id         Int       @id @default(autoincrement())
   user_id    Int
-  thread_id  Int
+  thread_id  Int?
   image      String
   content    String
-  created_at DateTime @default(now())
-  updated_at DateTime @updatedAt
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime  @updatedAt @db.Timestamptz(6)
   updated_by Int
-  creator    User     @relation(fields: [user_id], references: [id], name: "creator")
-  updater    User     @relation(fields: [updated_by], references: [id], name: "updater")
-  thread     Threads  @relation(fields: [thread_id], references: [id])
+  likes      Likes[]
+  creator    User      @relation(fields: [user_id], references: [id], name: "creator")
+  updater    User      @relation(fields: [updated_by], references: [id], name: "updater")
+  thread     Threads?  @relation(fields: [thread_id], references: [id])
 }
 
 model Likes {
   id         Int      @id @default(autoincrement())
   user_id    Int
-  thread_id  Int
+  thread_id  Int?
+  reply_id   Int?
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
   user       User     @relation(fields: [user_id], references: [id])
-  thread     Threads  @relation(fields: [thread_id], references: [id])
+  thread     Threads? @relation(fields: [thread_id], references: [id])
+  replies    Replies? @relation(fields: [reply_id], references: [id])
 }
