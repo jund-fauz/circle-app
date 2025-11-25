@@ -1,5 +1,15 @@
+import { authRootSelector } from '@/config/redux/auth/selector'
+import {
+	createLike,
+	deleteLike,
+	initiateLike,
+} from '@/config/redux/likes/action'
+import { Like } from '@/config/redux/likes/reducer'
+import { likesRootSelector } from '@/config/redux/likes/selector'
 import { Thread } from '@/types/Thread'
 import { CircleUser, Heart, MessageSquare } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 
 export function ThreadCard({
@@ -7,12 +17,17 @@ export function ThreadCard({
 	border = true,
 	borderTop = false,
 	toReply = true,
+	reply = false,
 }: {
 	thread: Thread
 	border?: boolean
 	borderTop?: boolean
 	toReply?: boolean
+	reply?: boolean
 }) {
+	const dispatch = useDispatch()
+	const auth = useSelector(authRootSelector)
+	const { likes } = useSelector(likesRootSelector)
 	let sinceHour = Math.floor(
 		Date.now() / 3600000 - new Date(thread.created_at).getTime() / 3600000
 	)
@@ -21,6 +36,41 @@ export function ThreadCard({
 		sinceDate = Math.floor(sinceHour / 24)
 		sinceHour -= sinceDate * 24
 	}
+	const [isLiked, setIsLiked] = useState(
+		likes.find((like: Like) => like.id === thread.id && like.reply === reply)
+			?.isLiked || thread.isLiked
+	)
+	const [likesState, setLikesState] = useState(
+		likes.find((like: Like) => like.id === thread.id && like.reply === reply)
+			?.count || thread._count.likes
+	)
+
+	const likeThread = () => {
+		dispatch(
+			isLiked ? deleteLike(thread.id, reply) : createLike(thread.id, reply)
+		)
+		setIsLiked((prev: boolean) => !prev)
+		setLikesState((prev: number) => (isLiked ? prev - 1 : prev + 1))
+		fetch(`http://localhost:3000/api/v1/${!reply ? 'like' : 'reply/like'}`, {
+			method: isLiked ? 'DELETE' : 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${auth.token}`,
+			},
+			body: JSON.stringify(
+				!reply ? { tweet_id: thread.id } : { reply_id: thread.id }
+			),
+		})
+	}
+
+	useEffect(() => {
+		if (thread._count.likes > 0) {
+			dispatch(
+				initiateLike(thread.id, thread._count.likes, thread.isLiked, reply)
+			)
+		}
+	}, [])
+
 	return (
 		<div
 			className={`flex gap-2 pb-4${border ? ' border-b' : ''}${
@@ -29,9 +79,9 @@ export function ThreadCard({
 		>
 			{thread.creator.photo_profile ? (
 				<img
-					src={thread.creator.photo_profile}
+					src={`http://localhost:3000/uploads/${thread.creator.photo_profile}`}
 					alt={thread.creator.full_name}
-					className='rounded'
+					className='rounded w-5 h-5'
 				/>
 			) : (
 				<CircleUser />
@@ -47,11 +97,11 @@ export function ThreadCard({
 				<p>{thread.content}</p>
 				<div className='flex gap-2 mt-2'>
 					<Heart
-						className={thread.isLiked ? 'text-red-600' : ''}
 						cursor='pointer'
-						{...(thread.isLiked && { fill: 'red' })}
+						{...(isLiked && { fill: 'red', className: 'text-red-600' })}
+						onClick={likeThread}
 					/>
-					<p>{thread._count.likes}</p>
+					<p>{likesState}</p>
 					{toReply ? (
 						<Link className='hover:cursor-pointer' to={`/thread/${thread.id}`}>
 							<MessageSquare className='ms-4' />
@@ -59,10 +109,7 @@ export function ThreadCard({
 					) : (
 						<MessageSquare className='ms-4' />
 					)}
-					<p>
-						{thread._count.replies || 0}{' '}
-						Replies
-					</p>
+					<p>{thread._count.replies || 0} Replies</p>
 				</div>
 				{thread.image && (
 					<img

@@ -1,35 +1,63 @@
 import { Request, Response } from 'express'
 import { prisma } from '../connection/client'
 import { threadSchema } from '../validation/thread'
+import { errorFunc } from '../middlewares/errorHandler'
 
 export async function getThreads(req: Request, res: Response) {
 	const limit = Number(req.query.limit)
+	const byUser = Boolean(req.query.byUser)
 
 	try {
-		const threadRecords = await prisma.threads.findMany({
-			take: limit,
-			select: {
-				id: true,
-				content: true,
-				image: true,
-				created_at: true,
-				creator: {
+		const threadRecords = byUser
+			? await prisma.threads.findMany({
+					take: limit,
 					select: {
 						id: true,
-						username: true,
-						photo_profile: true,
-						full_name: true,
+						content: true,
+						image: true,
+						created_at: true,
+						creator: {
+							select: {
+								id: true,
+								username: true,
+								photo_profile: true,
+								full_name: true,
+							},
+						},
+						_count: {
+							select: {
+								likes: true,
+								replies: true,
+							},
+						},
 					},
-				},
-				_count: {
+					where: { created_by: (req as any).user.id },
+					orderBy: { id: 'desc' },
+			  })
+			: await prisma.threads.findMany({
+					take: limit,
 					select: {
-						likes: true,
-						replies: true,
+						id: true,
+						content: true,
+						image: true,
+						created_at: true,
+						creator: {
+							select: {
+								id: true,
+								username: true,
+								photo_profile: true,
+								full_name: true,
+							},
+						},
+						_count: {
+							select: {
+								likes: true,
+								replies: true,
+							},
+						},
 					},
-				},
-			},
-			orderBy: { id: 'desc' },
-		})
+					orderBy: { id: 'desc' },
+			  })
 		const threads = await Promise.all(
 			threadRecords.map(async (thread) => ({
 				...thread,
@@ -46,12 +74,8 @@ export async function getThreads(req: Request, res: Response) {
 			message: 'Get Data Thread Successfully',
 			threads,
 		})
-	} catch (error: any) {
-		res.status(error.status || 500).json({
-			code: error.status || 500,
-			status: 'error',
-			message: error.message,
-		})
+	} catch (error) {
+		errorFunc(error, res)
 	}
 }
 
@@ -84,12 +108,8 @@ export async function createThread(req: Request, res: Response) {
 				},
 			},
 		})
-	} catch (error: any) {
-		res.status(error.status || 500).json({
-			code: error.status || 500,
-			status: 'error',
-			message: error.message,
-		})
+	} catch (error) {
+		errorFunc(error, res)
 	}
 }
 
@@ -125,54 +145,34 @@ export async function getThreadDetail(req: Request, res: Response) {
 			code: 200,
 			status: 'success',
 			message: 'Get Data Thread Successfully',
-			data: thread,
+			data: {
+				...thread,
+				isLiked: (await prisma.likes.findFirst({
+					where: { thread_id: thread.id, user_id: (req as any).user.id },
+				}))
+					? true
+					: false,
+			},
 		})
-	} catch (error: any) {
-		res.status(error.status || 500).json({
-			code: error.status || 500,
-			status: 'error',
-			message: error.message,
-		})
+	} catch (error) {
+		errorFunc(error, res)
 	}
 }
 
-export async function getThreadReplies(req: Request, res: Response) {
-	const { threadId } = req.params
-	if (!threadId) throw { status: 400, message: 'Thread ID is required' }
+export async function getThreadPictures(req: Request, res: Response) {
 	try {
-		const replies = await prisma.replies.findMany({
-			where: {thread_id: Number(threadId)},
-			select: {
-				id: true,
-				content: true,
-				creator: {
-					select: {
-						id: true,
-						username: true,
-						full_name: true,
-						photo_profile: true,
-					}
-				},
-				created_at: true,
-				_count: {
-					select: {
-						likes: true
-					}
-				}
-			}
+		const pictures = await prisma.threads.findMany({
+			where: { created_by: (req as any).user.id, image: { not: '' } },
+			select: { id: true, image: true },
+			orderBy: { id: 'desc' },
 		})
-		if (!replies) throw { status: 404, message: 'Replies not found' }
 		res.status(200).json({
 			code: 200,
 			status: 'success',
-			message: 'Get Data Thread Successfully',
-			data: { replies },
+			message: 'Get Thread Images Successfully',
+			data: pictures,
 		})
-	} catch (error: any) {
-		res.status(error.status || 500).json({
-			code: error.status || 500,
-			status: 'error',
-			message: error.message,
-		})
+	} catch (error) {
+		errorFunc(error, res)
 	}
 }

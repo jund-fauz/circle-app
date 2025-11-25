@@ -1,0 +1,1 @@
+export const likesRootSelector = (state: any) => state.likes

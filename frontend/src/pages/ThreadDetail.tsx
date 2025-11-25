@@ -1,14 +1,20 @@
 import { ThreadCard } from '@/components/ThreadCard'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Toaster } from '@/components/ui/sonner'
 import { authRootSelector } from '@/config/redux/auth/selector'
 import { Thread } from '@/types/Thread'
+import { formatISO } from 'date-fns'
 import { CircleUser, ImagePlus, CircleX, MoveLeft } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
+import { io } from 'socket.io-client'
+import { toast } from 'sonner'
+const socket = io(import.meta.env.VITE_BASE_URL)
 
 export function ThreadDetail() {
+	const top = useRef<HTMLHeadingElement>(null)
 	const { threadId } = useParams()
 	const [thread, setThread] = useState<Thread>({} as Thread)
 	const [replies, setReplies] = useState<Thread[]>([])
@@ -18,8 +24,62 @@ export function ThreadDetail() {
 	const input = useRef<HTMLInputElement>(null)
 
 	const sendPost = () => {
-		// Implement send post logic here
+		socket.emit('send_reply', {
+			content: post,
+			token: auth.token,
+			image,
+			threadId
+		})
+		const formData = new FormData()
+		formData.append('content', post)
+		if (image) {
+			formData.append('image', image)
+		}
+		fetch(`http://localhost:3000/api/v1/reply/${threadId}`, {
+			method: 'POST',
+			headers: {
+				Authorization: `Bearer ${auth.token}`,
+			},
+			body: formData,
+		})
+		setPost('')
+		setImage(null)
 	}
+
+	useEffect(() => {
+		const handleReceiveMessage = (data: Object, token: string) => {
+			if ((data as any).threadId != threadId) return
+			if (token !== auth.token)
+				toast('Ada Reply baru!', {
+					action: {
+						label: 'Lihat',
+						onClick: () => {
+							top.current?.scrollIntoView({ behavior: 'smooth' })
+						},
+					},
+				})
+			setReplies((prev) => [
+				{
+					...data,
+					_count: {
+						likes: 0,
+						replies: 0,
+					},
+					isLiked: false,
+					created_at: formatISO(new Date()),
+				} as Thread,
+				...prev,
+			])
+			setThread((prev) => ({
+				...prev,
+				_count: { ...prev._count, replies: prev._count.replies + 1 },
+			}))
+		}
+		socket.on('receive_reply', handleReceiveMessage)
+		return () => {
+			socket.off('receive_reply', handleReceiveMessage)
+		}
+	}, [])
 
 	useEffect(() => {
 		fetch(`http://localhost:3000/api/v1/thread/${threadId}`, {
@@ -40,9 +100,12 @@ export function ThreadDetail() {
 
 	return (
 		<div className='ps-4 pe-12 py-8 flex flex-col gap-4'>
+			<Toaster position='bottom-center' />
 			<div className='flex gap-2 text-gray-200 items-center'>
 				<MoveLeft cursor='pointer' onClick={() => window.history.back()} />
-				<h1 className='font-bold text-2xl'>Status</h1>
+				<h1 className='font-bold text-2xl' ref={top}>
+					Status
+				</h1>
 			</div>
 			{Object.keys(thread).length > 0 && (
 				<ThreadCard thread={thread} border={false} toReply={false} />
@@ -62,7 +125,8 @@ export function ThreadDetail() {
 					<ImagePlus cursor='pointer' onClick={() => input.current?.click()} />
 					<input
 						type='file'
-						style={{ display: 'none' }}
+						accept='image/*'
+						className='hidden'
 						ref={input}
 						onChange={(e) => setImage(e.target.files?.[0] || null)}
 					/>
@@ -91,6 +155,7 @@ export function ThreadDetail() {
 							thread={reply}
 							borderTop={index === 0}
 							toReply={false}
+							reply={true}
 						/>
 					))}
 			</div>

@@ -1,0 +1,4 @@
+export const CREATE_LIKE = 'CREATE_LIKE'
+export const DELETE_LIKE = 'DELETE_LIKE'
+export const INITIATE_LIKE = 'INITIATE_LIKE'
+export const REMOVE_LIKE = 'REMOVE_LIKE'

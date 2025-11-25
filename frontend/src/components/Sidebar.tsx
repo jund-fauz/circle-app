@@ -8,22 +8,21 @@ import {
 	Search,
 	User,
 } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Button } from './ui/button'
 import { useDispatch, useSelector } from 'react-redux'
 import { deleteToken } from '@/config/redux/auth/action'
-import {
-	AlertDialog,
-	AlertDialogContent,
-	AlertDialogTrigger,
-} from '@/components/ui/alert-dialog'
 import { Input } from './ui/input'
 import { useRef, useState } from 'react'
 import { authRootSelector } from '@/config/redux/auth/selector'
 import { io } from 'socket.io-client'
+import { deleteProfile } from '@/config/redux/profile/action'
+import { Dialog, DialogTrigger, DialogContent } from './ui/dialog'
+import { removeLike } from '@/config/redux/likes/action'
 const socket = io('http://localhost:3000')
 
 export function Sidebar() {
+    const { pathname } = useLocation()
 	const dispatch = useDispatch()
 	const auth = useSelector(authRootSelector)
 	const [post, setPost] = useState('')
@@ -31,7 +30,7 @@ export function Sidebar() {
 	const input = useRef<HTMLInputElement>(null)
 	const [open, setOpen] = useState(false)
 
-	const sendPost = () => {
+    const sendPost = () => {
 		socket.emit('send_message', {
 			content: post,
 			token: auth.token,
@@ -59,24 +58,24 @@ export function Sidebar() {
 			<div className='flex flex-col gap-4'>
 				<img src='/logo.png' alt='Logo' />
 				<Link className='flex gap-2' to='/home'>
-					<HomeIcon fill='white' /> Home
+					<HomeIcon {...(pathname === '/home' && { fill: 'white' })} /> Home
 				</Link>
 				<Link className='flex gap-2' to='/search'>
-					<Search /> Search
+					<Search {...(pathname === '/search' && { fill: 'white' })} /> Search
 				</Link>
 				<Link className='flex gap-2' to='/follows'>
-					<Heart /> Follows
+					<Heart {...(pathname === '/follows' && { fill: 'white' })} /> Follows
 				</Link>
 				<Link className='flex gap-2' to='/profile'>
-					<User /> Profile
+					<User {...(pathname === '/profile' && { fill: 'white' })} /> Profile
 				</Link>
-				<AlertDialog open={open} onOpenChange={setOpen}>
-					<AlertDialogTrigger asChild>
+				<Dialog open={open} onOpenChange={setOpen}>
+					<DialogTrigger asChild>
 						<Button className='bg-green-600 rounded-4xl w-52 hover:cursor-pointer hover:bg-green-900'>
 							Create Post
 						</Button>
-					</AlertDialogTrigger>
-					<AlertDialogContent className='bg-(--primary-color)'>
+					</DialogTrigger>
+					<DialogContent className='bg-(--primary-color)'>
 						<div className='flex items-center gap-3 relative'>
 							<CircleUser />
 							<Input
@@ -94,7 +93,8 @@ export function Sidebar() {
 							/>
 							<input
 								type='file'
-								style={{ display: 'none' }}
+								accept='image/*'
+								className='hidden'
 								ref={input}
 								onChange={(e) => setImage(e.target.files?.[0] || null)}
 							/>
@@ -121,13 +121,17 @@ export function Sidebar() {
 							cursor='pointer'
 							onClick={() => setOpen(false)}
 						/>
-					</AlertDialogContent>
-				</AlertDialog>
+					</DialogContent>
+				</Dialog>
 			</div>
 			<Button
 				variant='ghost'
 				className='hover:cursor-pointer'
-				onClick={() => dispatch(deleteToken())}
+				onClick={() => {
+					dispatch(deleteToken())
+					dispatch(removeLike())
+					dispatch(deleteProfile())
+				}}
 			>
 				<LogOut /> Logout
 			</Button>

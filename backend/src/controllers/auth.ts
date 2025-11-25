@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import bcrypt from 'bcrypt'
 import { prisma } from '../connection/client'
 import { signToken } from '../utils/jwt'
+import { errorFunc } from '../middlewares/errorHandler'
 
 export async function register(req: Request, res: Response) {
 	const { username, name, email, password } = req.body
@@ -32,12 +33,8 @@ export async function register(req: Request, res: Response) {
 				token,
 			},
 		})
-	} catch (error: any) {
-		res.status(error.status || 500).json({
-			code: error.status || 500,
-			status: 'error',
-			message: error.message,
-		})
+	} catch (error) {
+		errorFunc(error, res)
 	}
 }
 
@@ -64,11 +61,7 @@ export async function login(req: Request, res: Response) {
 				token,
 			},
 		})
-	} catch (error: any) {
-		res.status(error.status || 500).json({
-			code: error.status || 500,
-			status: 'error',
-			message: error.message,
-		})
+	} catch (error) {
+		errorFunc(error, res)
 	}
 }

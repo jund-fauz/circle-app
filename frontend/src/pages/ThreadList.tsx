@@ -10,7 +10,7 @@ import { io } from 'socket.io-client'
 import { toast } from 'sonner'
 import { Toaster } from '../components/ui/sonner'
 import { formatISO } from 'date-fns'
-const socket = io('http://localhost:3000')
+const socket = io(import.meta.env.VITE_BASE_URL)
 
 export function ThreadList() {
 	const top = useRef<HTMLHeadingElement>(null)
@@ -65,9 +65,26 @@ export function ThreadList() {
 				...prev,
 			])
 		}
+		const handleNewReply = (data: Object) => {
+			setThreads((prev) =>
+				prev.map((thread) =>
+					thread.id == (data as any).threadId
+						? {
+								...thread,
+								_count: {
+									...thread._count,
+									replies: thread._count.replies + 1,
+								},
+						  }
+						: thread
+				)
+			)
+		}
 		socket.on('receive_message', handleReceiveMessage)
+		socket.on('receive_reply', handleNewReply)
 		return () => {
 			socket.off('receive_message', handleReceiveMessage)
+			socket.off('receive_reply', handleNewReply)
 		}
 	}, [])
 
@@ -104,7 +121,8 @@ export function ThreadList() {
 						/>
 						<input
 							type='file'
-							style={{ display: 'none' }}
+							accept='image/*'
+							className='hidden'
 							ref={input}
 							onChange={(e) => setImage(e.target.files?.[0] || null)}
 						/>
@@ -130,10 +148,7 @@ export function ThreadList() {
 				<div className='flex flex-col gap-4'>
 					{threads &&
 						threads.map((thread, index) => (
-							<ThreadCard
-								key={index}
-								thread={thread}
-							/>
+							<ThreadCard key={index} thread={thread} />
 						))}
 				</div>
 			</div>

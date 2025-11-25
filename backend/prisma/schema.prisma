@@ -58,18 +58,18 @@ model Threads {
 }
 
 model Replies {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   user_id    Int
-  thread_id  Int?
-  image      String
+  thread_id  Int
+  image      String   @default("")
   content    String
-  created_at DateTime  @default(now()) @db.Timestamptz(6)
-  updated_at DateTime  @updatedAt @db.Timestamptz(6)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @updatedAt @db.Timestamptz(6)
   updated_by Int
   likes      Likes[]
-  creator    User      @relation(fields: [user_id], references: [id], name: "creator")
-  updater    User      @relation(fields: [updated_by], references: [id], name: "updater")
-  thread     Threads?  @relation(fields: [thread_id], references: [id])
+  creator    User     @relation(fields: [user_id], references: [id], name: "creator")
+  updater    User     @relation(fields: [updated_by], references: [id], name: "updater")
+  thread     Threads @relation(fields: [thread_id], references: [id])
 }
 
 model Likes {

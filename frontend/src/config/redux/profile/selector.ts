@@ -1,0 +1,1 @@
+export const profileRootSelector = (state: any) => state.profile
