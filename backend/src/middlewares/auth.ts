@@ -8,7 +8,7 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 	const user = verifyToken(token)
 	if (!user) throw { status: 401, message: 'Unauthorized' }
 	try {
-		;(req as any).user = user
+		(req as any).user = user
 		next()
 	} catch (error) {
 		errorFunc(error, res)

@@ -1,6 +1,26 @@
-import { ADD_PROFILE, DELETE_PROFILE, UPDATE_PROFILE } from "./string";
+import {
+	ADD_PROFILE,
+	DELETE_PROFILE,
+	FOLLOW_SOMEONE,
+	UNFOLLOW_SOMEONE,
+	UPDATE_PROFILE,
+} from './string'
 
-const profileInitialState = {
+export type Profile = {
+	id: number
+	username: string
+	full_name: string
+	bio: string
+	_count: {
+		followers: number
+		followings: number
+	}
+	followings: Array<{
+		follower_id: number
+	}>
+}
+
+const profileInitialState: { profile: Profile | any } = {
 	profile: {},
 }
 
@@ -22,12 +42,43 @@ export const profileReducer = (
 		[UPDATE_PROFILE as string]: () => ({
 			...state,
 			action: action.type,
-			profile: { ...state.profile, ...action.payload }
+			profile: { ...state.profile, ...action.payload },
 		}),
 		[DELETE_PROFILE as string]: () => ({
 			...state,
 			action: action.type,
 			profile: {},
+		}),
+		[FOLLOW_SOMEONE as string]: () => ({
+			...state,
+			action: action.type,
+			profile: {
+				...state.profile,
+				_count: {
+					...state.profile._count,
+					followings: state.profile._count.followings + 1,
+				},
+				followings: [
+					...state.profile.followings,
+					{
+						follower_id: action.payload,
+					},
+				],
+			},
+		}),
+		[UNFOLLOW_SOMEONE as string]: () => ({
+			...state,
+			action: action.type,
+			profile: {
+				...state.profile,
+				_count: {
+					...state.profile._count,
+					followings: state.profile._count.followings - 1,
+				},
+				followings: state.profile.followings.filter(
+					(follower: any) => follower.follower_id !== action.payload
+				),
+			},
 		}),
 		DEFAULT: () => state,
 	}

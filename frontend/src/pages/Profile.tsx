@@ -38,7 +38,7 @@ export function Profile() {
 				<MoveLeft cursor='pointer' onClick={() => navigate('/home')} />
 				<h1 className='font-bold text-2xl'>{profile.full_name}</h1>
 			</div>
-			<div className='w-138 bg-blue-500 h-36 rounded'></div>
+			<div className='w-136 bg-blue-500 h-36 rounded'></div>
 			<div className='-mt-12 flex justify-between'>
 				{profile.photo_profile ? (
 					<img

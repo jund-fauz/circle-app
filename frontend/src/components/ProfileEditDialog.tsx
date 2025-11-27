@@ -45,7 +45,10 @@ export function ProfileEditDialog() {
 					Edit Profile
 				</Button>
 			</DialogTrigger>
-			<DialogContent className='bg-(--primary-color)'>
+			<DialogContent
+				className='bg-(--primary-color)'
+				onOpenAutoFocus={(e) => e.preventDefault()}
+			>
 				<DialogHeader>
 					<DialogTitle>Edit Profile</DialogTitle>
 				</DialogHeader>

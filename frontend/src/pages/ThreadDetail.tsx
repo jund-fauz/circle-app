@@ -99,7 +99,7 @@ export function ThreadDetail() {
 	}, [])
 
 	return (
-		<div className='ps-4 pe-12 py-8 flex flex-col gap-4'>
+		<div className='ps-4 pe-10 py-8 flex flex-col gap-4'>
 			<Toaster position='bottom-center' />
 			<div className='flex gap-2 text-gray-200 items-center'>
 				<MoveLeft cursor='pointer' onClick={() => window.history.back()} />

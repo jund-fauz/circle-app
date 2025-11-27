@@ -1,7 +1,12 @@
-import { Router } from "express";
-import { createThread, getThreadDetail, getThreadPictures, getThreads } from "../controllers/thread";
-import { authenticate } from "../middlewares/auth";
-import { upload } from "../utils/multer";
+import { Router } from 'express'
+import {
+	createThread,
+	getThreadDetail,
+	getThreadPictures,
+	getThreads,
+} from '../controllers/thread'
+import { authenticate } from '../middlewares/auth'
+import { upload } from '../utils/multer'
 
 export const threadRouter = Router()
 

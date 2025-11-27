@@ -13,6 +13,8 @@ import { prisma } from './connection/client'
 import { replyRouter } from './routes/reply'
 import { profileRouter } from './routes/profile'
 import { likeRouter } from './routes/like'
+import swaggerUi from 'swagger-ui-express'
+import { swaggerSpec } from './swagger/swagger.config'
 
 const app = express()
 const server = http.createServer(app)
@@ -24,6 +26,7 @@ dotenv.config()
 app.use(json())
 app.use(cors({ origin: 'http://localhost:5173' }))
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 app.use('/api/v1/auth', authRouter)
 app.use('/api/v1/thread', threadRouter)
 app.use('/api/v1/reply', replyRouter)

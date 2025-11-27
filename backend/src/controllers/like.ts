@@ -2,6 +2,44 @@ import { Request, Response } from 'express'
 import { prisma } from '../connection/client'
 import { errorFunc } from '../middlewares/errorHandler'
 
+/**
+ * @swagger
+ * tags:
+ *  name: Likes
+ *  description: Thread and reply like management
+ */
+
+/**
+ * @swagger
+ * /api/v1/like:
+ *  post:
+ *   summary: Like a thread
+ *   description: Add a like to a thread
+ *   tags: [Likes]
+ *   security:
+ *    - BearerAuth: []
+ *   requestBody:
+ *    required: true
+ *    content:
+ *     application/json:
+ *      schema:
+ *       type: object
+ *       required:
+ *        - tweet_id
+ *       properties:
+ *        tweet_id:
+ *         type: integer
+ *         description: Thread ID to like
+ *   responses:
+ *    '200':
+ *     description: Thread liked successfully
+ *    '400':
+ *     description: Bad Request - Missing thread ID
+ *    '401':
+ *     description: Unauthorized
+ *    '404':
+ *     description: Thread not found
+ */
 export async function likeThread(req: Request, res: Response) {
 	const { tweet_id } = req.body
 	if (!tweet_id) throw { status: 400, message: 'Thread ID is required' }
@@ -28,6 +66,37 @@ export async function likeThread(req: Request, res: Response) {
 	}
 }
 
+/**
+ * @swagger
+ * /api/v1/like:
+ *  delete:
+ *   summary: Unlike a thread
+ *   description: Remove a like from a thread
+ *   tags: [Likes]
+ *   security:
+ *    - BearerAuth: []
+ *   requestBody:
+ *    required: true
+ *    content:
+ *     application/json:
+ *      schema:
+ *       type: object
+ *       required:
+ *        - tweet_id
+ *       properties:
+ *        tweet_id:
+ *         type: integer
+ *         description: Thread ID to unlike
+ *   responses:
+ *    '200':
+ *     description: Thread like deleted successfully
+ *    '400':
+ *     description: Bad Request - Missing thread ID
+ *    '401':
+ *     description: Unauthorized
+ *    '404':
+ *     description: Thread not found
+ */
 export async function deleteLikeThread(req: Request, res: Response) {
 	const { tweet_id } = req.body
 	if (!tweet_id) throw { status: 400, message: 'Thread ID is required' }

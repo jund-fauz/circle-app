@@ -3,6 +3,37 @@ import { prisma } from '../connection/client'
 import { threadSchema } from '../validation/thread'
 import { errorFunc } from '../middlewares/errorHandler'
 
+/**
+ * @swagger
+ * tags:
+ *  name: Replies
+ *  description: Thread reply management
+ */
+
+/**
+ * @swagger
+ * /api/v1/reply/{threadId}:
+ *  get:
+ *   summary: Get thread replies
+ *   description: Retrieve all replies for a specific thread
+ *   tags: [Replies]
+ *   security:
+ *    - BearerAuth: []
+ *   parameters:
+ *    - in: path
+ *      name: threadId
+ *      required: true
+ *      schema:
+ *       type: integer
+ *      description: The thread ID
+ *   responses:
+ *    '200':
+ *     description: Thread replies retrieved successfully
+ *    '400':
+ *     description: Bad Request - Missing thread ID
+ *    '401':
+ *     description: Unauthorized
+ */
 export async function getThreadReplies(req: Request, res: Response) {
 	const { threadId } = req.params
 	if (!threadId) throw { status: 400, message: 'Thread ID is required' }
@@ -51,6 +82,46 @@ export async function getThreadReplies(req: Request, res: Response) {
 	}
 }
 
+/**
+ * @swagger
+ * /api/v1/reply/{threadId}:
+ *  post:
+ *   summary: Post a reply to a thread
+ *   description: Create a reply with content and optional image to a specific thread
+ *   tags: [Replies]
+ *   security:
+ *    - BearerAuth: []
+ *   parameters:
+ *    - in: path
+ *      name: threadId
+ *      required: true
+ *      schema:
+ *       type: integer
+ *      description: The thread ID
+ *   requestBody:
+ *    required: true
+ *    content:
+ *     multipart/form-data:
+ *      schema:
+ *       type: object
+ *       required:
+ *        - content
+ *       properties:
+ *        content:
+ *         type: string
+ *         description: Reply content
+ *        image:
+ *         type: string
+ *         format: binary
+ *         description: Optional image file
+ *   responses:
+ *    '201':
+ *     description: Reply created successfully
+ *    '400':
+ *     description: Bad Request - Invalid content or missing thread ID
+ *    '401':
+ *     description: Unauthorized
+ */
 export async function postReply(req: Request, res: Response) {
 	const { threadId } = req.params
 	if (!threadId) throw { status: 400, message: 'Thread ID is required' }
@@ -89,6 +160,37 @@ export async function postReply(req: Request, res: Response) {
 	}
 }
 
+/**
+ * @swagger
+ * /api/v1/reply/like:
+ *  post:
+ *   summary: Like a reply
+ *   description: Add a like to a reply
+ *   tags: [Replies]
+ *   security:
+ *    - BearerAuth: []
+ *   requestBody:
+ *    required: true
+ *    content:
+ *     application/json:
+ *      schema:
+ *       type: object
+ *       required:
+ *        - reply_id
+ *       properties:
+ *        reply_id:
+ *         type: integer
+ *         description: Reply ID to like
+ *   responses:
+ *    '200':
+ *     description: Reply liked successfully
+ *    '400':
+ *     description: Bad Request - Missing reply ID
+ *    '401':
+ *     description: Unauthorized
+ *    '404':
+ *     description: Reply not found
+ */
 export async function likeReply(req: Request, res: Response) {
 	const { reply_id } = req.body
 	if (!reply_id) throw { status: 400, message: 'Reply ID is required' }
@@ -115,6 +217,37 @@ export async function likeReply(req: Request, res: Response) {
 	}
 }
 
+/**
+ * @swagger
+ * /api/v1/reply/like:
+ *  delete:
+ *   summary: Unlike a reply
+ *   description: Remove a like from a reply
+ *   tags: [Replies]
+ *   security:
+ *    - BearerAuth: []
+ *   requestBody:
+ *    required: true
+ *    content:
+ *     application/json:
+ *      schema:
+ *       type: object
+ *       required:
+ *        - reply_id
+ *       properties:
+ *        reply_id:
+ *         type: integer
+ *         description: Reply ID to unlike
+ *   responses:
+ *    '200':
+ *     description: Reply like deleted successfully
+ *    '400':
+ *     description: Bad Request - Missing reply ID
+ *    '401':
+ *     description: Unauthorized
+ *    '404':
+ *     description: Reply not found
+ */
 export async function deleteLikeReply(req: Request, res: Response) {
 	const { reply_id } = req.body
 	if (!reply_id) throw { status: 400, message: 'Reply ID is required' }
