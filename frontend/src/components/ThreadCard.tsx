@@ -51,24 +51,28 @@ export function ThreadCard({
 		)
 		setIsLiked((prev: boolean) => !prev)
 		setLikesState((prev: number) => (isLiked ? prev - 1 : prev + 1))
-		fetch(`http://localhost:3000/api/v1/${!reply ? 'like' : 'reply/like'}`, {
-			method: isLiked ? 'DELETE' : 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${auth.token}`,
-			},
-			body: JSON.stringify(
-				!reply ? { tweet_id: thread.id } : { reply_id: thread.id }
-			),
-		})
+		fetch(
+			`${import.meta.env.VITE_BASE_URL}/api/v1/${
+				!reply ? 'like' : 'reply/like'
+			}`,
+			{
+				method: isLiked ? 'DELETE' : 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${auth.token}`,
+				},
+				body: JSON.stringify(
+					!reply ? { tweet_id: thread.id } : { reply_id: thread.id }
+				),
+			}
+		)
 	}
 
 	useEffect(() => {
-		if (thread._count.likes > 0) {
+		if (thread._count.likes > 0)
 			dispatch(
 				initiateLike(thread.id, thread._count.likes, thread.isLiked, reply)
 			)
-		}
 	}, [])
 
 	return (
@@ -79,7 +83,9 @@ export function ThreadCard({
 		>
 			{thread.creator.photo_profile ? (
 				<img
-					src={`http://localhost:3000/uploads/${thread.creator.photo_profile}`}
+					src={`${import.meta.env.VITE_BASE_URL}/uploads/${
+						thread.creator.photo_profile
+					}`}
 					alt={thread.creator.full_name}
 					className='rounded w-5 h-5'
 				/>
@@ -120,7 +126,7 @@ export function ThreadCard({
 								? `data:image/jpeg;base64,${thread.image}`
 								: thread.image.startsWith('http')
 								? thread.image
-								: `http://localhost:3000/uploads/${thread.image}`
+								: `${import.meta.env.VITE_BASE_URL}/uploads/${thread.image}`
 						}
 						className='max-w-100 mt-2 rounded'
 					/>

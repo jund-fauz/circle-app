@@ -21,12 +21,12 @@ export function Profile() {
 
 	useEffect(() => {
 		if (Object.keys(profile).length === 0)
-			fetch('http://localhost:3000/api/v1/profile', {
+			fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/profile`, {
 				headers: { Authorization: `Bearer ${token}` },
 			})
 				.then((res) => res.json())
 				.then((data) => dispatch(addProfile(data.data)))
-		fetch('http://localhost:3000/api/v1/profiles', {
+		fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/profiles`, {
 			headers: { Authorization: `Bearer ${token}` },
 		})
 			.then((res) => res.json())
@@ -42,7 +42,9 @@ export function Profile() {
 					{profile.photo_profile ? (
 						<img
 							className='absolute top-31 ms-2 rounded-full border-(--primary-color) border-2 w-10 h-10'
-							src={`http://localhost:3000/uploads/${profile.photo_profile}`}
+							src={`${import.meta.env.VITE_BASE_URL}/uploads/${
+								profile.photo_profile
+							}`}
 							alt={profile.full_name}
 						/>
 					) : (
@@ -73,7 +75,9 @@ export function Profile() {
 								{user.photo_profile ? (
 									<img
 										className='rounded-full w-8 h-8'
-										src={`http://localhost:3000/uploads/${user.photo_profile}`}
+										src={`${import.meta.env.VITE_BASE_URL}/uploads/${
+											user.photo_profile
+										}`}
 										alt={user.full_name}
 									/>
 								) : (
@@ -91,7 +95,7 @@ export function Profile() {
 									<Button
 										className='w-fit bg-(--secondary-color) border rounded-4xl hover:cursor-pointer brightness-75'
 										onClick={() =>
-											fetch('http://localhost:3000/api/v1/follows', {
+											fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/follows`, {
 												headers: {
 													Authorization: `Bearer ${token}`,
 													'Content-Type': 'application/json',
@@ -115,7 +119,7 @@ export function Profile() {
 									<Button
 										className='w-fit bg-(--secondary-color) border rounded-4xl hover:cursor-pointer'
 										onClick={() =>
-											fetch('http://localhost:3000/api/v1/follows', {
+											fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/follows`, {
 												headers: {
 													Authorization: `Bearer ${token}`,
 													'Content-Type': 'application/json',

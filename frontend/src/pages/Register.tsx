@@ -11,8 +11,8 @@ export function Register() {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [error, setError] = useState('')
-    const navigate = useNavigate()
-    const dispatch = useDispatch()
+	const navigate = useNavigate()
+	const dispatch = useDispatch()
 
 	return (
 		<div className='flex flex-col items-center gap-2'>
@@ -22,7 +22,7 @@ export function Register() {
 				className='flex flex-col gap-3'
 				onSubmit={(e) => {
 					e.preventDefault()
-					fetch('http://localhost:3000/api/v1/auth/register', {
+					fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/auth/register`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({
@@ -35,10 +35,10 @@ export function Register() {
 						.then((res) => res.json())
 						.then((data) => {
 							if (data.status == 'error') setError(data.message)
-                            else {
-                                dispatch(createToken(data.data.token))
-                                navigate('/home')
-                            }
+							else {
+								dispatch(createToken(data.data.token))
+								navigate('/home')
+							}
 						})
 						.catch((error) => setError(error))
 				}}

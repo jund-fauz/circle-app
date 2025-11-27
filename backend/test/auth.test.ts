@@ -38,7 +38,7 @@ it('should send a status code of 400 when user exists', async () => {
 			password: 'password',
 		},
 	})
-	await register(request, response)
+	await register(request, response, ctx)
 	expect(response.status).toHaveBeenCalledWith(400)
 	expect(response.json).toHaveBeenCalledTimes(1)
 })

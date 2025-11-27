@@ -10,9 +10,11 @@ import { io } from 'socket.io-client'
 import { toast } from 'sonner'
 import { Toaster } from '../components/ui/sonner'
 import { formatISO } from 'date-fns'
+import { profileRootSelector } from '@/config/redux/profile/selector'
 const socket = io(import.meta.env.VITE_BASE_URL)
 
 export function ThreadList() {
+	const { profile } = useSelector(profileRootSelector)
 	const top = useRef<HTMLHeadingElement>(null)
 	const input = useRef<HTMLInputElement>(null)
 	const auth = useSelector(authRootSelector)
@@ -31,7 +33,7 @@ export function ThreadList() {
 		if (image) {
 			formData.append('image', image)
 		}
-		fetch('http://localhost:3000/api/v1/thread', {
+		fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/thread`, {
 			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${auth.token}`,
@@ -60,6 +62,7 @@ export function ThreadList() {
 						likes: 0,
 						replies: 0,
 					},
+					isLiked: false,
 					created_at: formatISO(new Date()),
 				} as Thread,
 				...prev,
@@ -89,7 +92,7 @@ export function ThreadList() {
 	}, [])
 
 	useEffect(() => {
-		fetch('http://localhost:3000/api/v1/thread?limit=100', {
+		fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/thread?limit=100`, {
 			headers: { Authorization: `Bearer ${auth.token}` },
 		})
 			.then((res) => res.json())
@@ -105,10 +108,20 @@ export function ThreadList() {
 			<div className='flex flex-col gap-4'>
 				<div className='flex flex-col gap-4'>
 					<div className='flex items-center gap-3'>
-						<CircleUser />
+						{profile.photo_profile ? (
+							<img
+								src={`${import.meta.env.VITE_BASE_URL}/uploads/${
+									profile.photo_profile
+								}`}
+								alt={profile.full_name}
+								className='rounded w-10 h-10'
+							/>
+						) : (
+							<CircleUser />
+						)}
 						<Input
 							placeholder='What is happening?!'
-							className='w-100 border-0'
+							className='w-106 border-0'
 							value={post}
 							onChange={(e) => setPost(e.target.value)}
 							onKeyDown={(e) => {

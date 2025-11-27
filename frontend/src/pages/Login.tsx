@@ -9,8 +9,8 @@ export function Login() {
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [error, setError] = useState('')
-    const navigate = useNavigate()
-    const dispatch = useDispatch()
+	const navigate = useNavigate()
+	const dispatch = useDispatch()
 
 	return (
 		<div className='flex flex-col items-center gap-4'>
@@ -20,7 +20,7 @@ export function Login() {
 				className='flex flex-col gap-2'
 				onSubmit={(e) => {
 					e.preventDefault()
-					fetch('http://localhost:3000/api/v1/auth/login', {
+					fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/auth/login`, {
 						method: 'POST',
 						headers: { 'Content-Type': 'application/json' },
 						body: JSON.stringify({
@@ -56,7 +56,9 @@ export function Login() {
 					onChange={(e) => setPassword(e.target.value)}
 				/>
 				{error && <p className='text-red-500'>{error}</p>}
-				<Link className='text-right text-xs' to='/'>Forgot Password?</Link>
+				<Link className='text-right text-xs' to='/'>
+					Forgot Password?
+				</Link>
 				<Button className='hover:cursor-pointer bg-green-600 hover:bg-green-900 rounded-4xl'>
 					Login
 				</Button>

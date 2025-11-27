@@ -19,10 +19,12 @@ import { io } from 'socket.io-client'
 import { deleteProfile } from '@/config/redux/profile/action'
 import { Dialog, DialogTrigger, DialogContent } from './ui/dialog'
 import { removeLike } from '@/config/redux/likes/action'
-const socket = io('http://localhost:3000')
+import { profileRootSelector } from '@/config/redux/profile/selector'
+const socket = io(import.meta.env.VITE_BASE_URL)
 
 export function Sidebar() {
-    const { pathname } = useLocation()
+	const { profile } = useSelector(profileRootSelector)
+	const { pathname } = useLocation()
 	const dispatch = useDispatch()
 	const auth = useSelector(authRootSelector)
 	const [post, setPost] = useState('')
@@ -30,7 +32,7 @@ export function Sidebar() {
 	const input = useRef<HTMLInputElement>(null)
 	const [open, setOpen] = useState(false)
 
-    const sendPost = () => {
+	const sendPost = () => {
 		socket.emit('send_message', {
 			content: post,
 			token: auth.token,
@@ -41,7 +43,7 @@ export function Sidebar() {
 		if (image) {
 			formData.append('image', image)
 		}
-		fetch('http://localhost:3000/api/v1/thread', {
+		fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/thread`, {
 			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${auth.token}`,
@@ -69,15 +71,34 @@ export function Sidebar() {
 				<Link className='flex gap-2' to='/profile'>
 					<User {...(pathname === '/profile' && { fill: 'white' })} /> Profile
 				</Link>
-				<Dialog open={open} onOpenChange={setOpen}>
+				<Dialog
+					open={open}
+					onOpenChange={(state) => {
+						if (state) {
+							setImage(null)
+							setPost('')
+						}
+						setOpen(state)
+					}}
+				>
 					<DialogTrigger asChild>
 						<Button className='bg-green-600 rounded-4xl w-52 hover:cursor-pointer hover:bg-green-900'>
 							Create Post
 						</Button>
 					</DialogTrigger>
-					<DialogContent className='bg-(--primary-color)'>
-						<div className='flex items-center gap-3 relative'>
-							<CircleUser />
+					<DialogContent className='bg-(--primary-color) pt-10'>
+						<div className='flex items-center gap-3'>
+							{profile.photo_profile ? (
+								<img
+									src={`${import.meta.env.VITE_BASE_URL}/uploads/${
+										profile.photo_profile
+									}`}
+									alt={profile.full_name}
+									className='rounded w-10 h-10'
+								/>
+							) : (
+								<CircleUser />
+							)}
 							<Input
 								placeholder='What is happening?!'
 								className='w-100 border-0'
@@ -98,17 +119,17 @@ export function Sidebar() {
 								ref={input}
 								onChange={(e) => setImage(e.target.files?.[0] || null)}
 							/>
-							{image && (
-								<div className='relative'>
-									<img src={URL.createObjectURL(image)} />
-									<CircleX
-										className='absolute top-0 right-0'
-										cursor='pointer'
-										onClick={() => setImage(null)}
-									/>
-								</div>
-							)}
 						</div>
+						{image && (
+							<div className='relative'>
+								<img src={URL.createObjectURL(image)} />
+								<CircleX
+									className='absolute top-0 right-0'
+									cursor='pointer'
+									onClick={() => setImage(null)}
+								/>
+							</div>
+						)}
 						<Button
 							className='bg-green-600 rounded-4xl hover:cursor-pointer hover:bg-green-900'
 							disabled={!post}
@@ -116,11 +137,6 @@ export function Sidebar() {
 						>
 							Post
 						</Button>
-						<CircleX
-							className='absolute top-0 right-0'
-							cursor='pointer'
-							onClick={() => setOpen(false)}
-						/>
 					</DialogContent>
 				</Dialog>
 			</div>

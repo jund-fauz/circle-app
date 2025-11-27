@@ -14,7 +14,7 @@ export function Follows() {
 	const dispatch = useDispatch()
 
 	useEffect(() => {
-		fetch(`http://localhost:3000/api/v1/follows?type=${selected}`, {
+		fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/follows?type=${selected}`, {
 			headers: { Authorization: `Bearer ${token}` },
 		})
 			.then((res) => res.json())
@@ -49,7 +49,9 @@ export function Follows() {
 							{user.photo_profile ? (
 								<img
 									className='rounded-full w-8 h-8'
-									src={`http://localhost:3000/uploads/${user.photo_profile}`}
+									src={`${import.meta.env.VITE_BASE_URL}/uploads/${
+										user.photo_profile
+									}`}
 									alt={user.full_name}
 								/>
 							) : (
@@ -67,7 +69,7 @@ export function Follows() {
 							<Button
 								className='w-fit bg-(--secondary-color) border rounded-4xl hover:cursor-pointer brightness-75'
 								onClick={() =>
-									fetch('http://localhost:3000/api/v1/follows', {
+									fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/follows`, {
 										headers: {
 											Authorization: `Bearer ${token}`,
 											'Content-Type': 'application/json',
@@ -81,11 +83,12 @@ export function Follows() {
 										.then((data) => {
 											if (data.status === 'success') {
 												dispatch(unfollowSomeone(data.data.user_id))
-												setUsers((prev) =>
-													prev.filter(
-														(user: any) => user.id !== data.data.user_id
+												if (selected === 'following')
+													setUsers((prev) =>
+														prev.filter(
+															(user: any) => user.id !== data.data.user_id
+														)
 													)
-												)
 											}
 										})
 								}
@@ -96,7 +99,7 @@ export function Follows() {
 							<Button
 								className='w-fit bg-(--secondary-color) border rounded-4xl hover:cursor-pointer'
 								onClick={() =>
-									fetch('http://localhost:3000/api/v1/follows', {
+									fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/follows`, {
 										headers: {
 											Authorization: `Bearer ${token}`,
 											'Content-Type': 'application/json',

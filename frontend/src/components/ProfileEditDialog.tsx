@@ -59,7 +59,9 @@ export function ProfileEditDialog() {
 						src={
 							image
 								? URL.createObjectURL(image)
-								: `http://localhost:3000/uploads/${profile.photo_profile}`
+								: `${import.meta.env.VITE_BASE_URL}/uploads/${
+										profile.photo_profile
+								  }`
 						}
 						alt={profile.full_name}
 					/>
@@ -84,7 +86,7 @@ export function ProfileEditDialog() {
 						if (bio !== profile.bio) formData.append('bio', bio)
 						if (image) formData.append('image', image)
 						if (!formData.entries().next().done)
-							fetch('http://localhost:3000/api/v1/profile', {
+							fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/profile`, {
 								method: 'PUT',
 								headers: { Authorization: `Bearer ${token}` },
 								body: formData,

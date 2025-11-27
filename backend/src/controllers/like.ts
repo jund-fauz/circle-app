@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { prisma } from '../connection/client'
 import { errorFunc } from '../middlewares/errorHandler'
+import { redis } from '../utils/redis'
 
 /**
  * @swagger
@@ -44,6 +45,7 @@ export async function likeThread(req: Request, res: Response) {
 	const { tweet_id } = req.body
 	if (!tweet_id) throw { status: 400, message: 'Thread ID is required' }
 	try {
+		await redis.del('threads')
 		const thread = await prisma.threads.findUnique({
 			where: { id: Number(tweet_id) },
 		})
@@ -101,6 +103,7 @@ export async function deleteLikeThread(req: Request, res: Response) {
 	const { tweet_id } = req.body
 	if (!tweet_id) throw { status: 400, message: 'Thread ID is required' }
 	try {
+		await redis.del('threads')
 		const thread = await prisma.threads.findUnique({
 			where: { id: Number(tweet_id) },
 		})

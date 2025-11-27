@@ -3,6 +3,7 @@ import { compare, hash } from 'bcrypt'
 import { prisma } from '../connection/client'
 import { signToken } from '../utils/jwt'
 import { errorFunc } from '../middlewares/errorHandler'
+import { redis } from '../utils/redis'
 
 /**
  * @swagger
@@ -55,6 +56,7 @@ export async function register(req: Request, res: Response, ctx?: any) {
 	const prismaClient = ctx?.prisma || prisma
 	let cryptedPassword = await hash(password, 10)
 	try {
+		await redis.del('threads')
 		const userByEmail = await prismaClient.user.findUnique({ where: { email } })
 		if (userByEmail)
 			throw { status: 400, message: `User dengan email ${email} sudah ada` }
@@ -122,6 +124,7 @@ export async function register(req: Request, res: Response, ctx?: any) {
 export async function login(req: Request, res: Response) {
 	const { identifier, password } = req.body
 	try {
+		await redis.del('threads')
 		const user = await prisma.user.findFirst({
 			where: { OR: [{ email: identifier }, { username: identifier }] },
 		})

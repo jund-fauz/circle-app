@@ -28,14 +28,14 @@ export function ThreadDetail() {
 			content: post,
 			token: auth.token,
 			image,
-			threadId
+			threadId,
 		})
 		const formData = new FormData()
 		formData.append('content', post)
 		if (image) {
 			formData.append('image', image)
 		}
-		fetch(`http://localhost:3000/api/v1/reply/${threadId}`, {
+		fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/reply/${threadId}`, {
 			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${auth.token}`,
@@ -82,14 +82,14 @@ export function ThreadDetail() {
 	}, [])
 
 	useEffect(() => {
-		fetch(`http://localhost:3000/api/v1/thread/${threadId}`, {
+		fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/thread/${threadId}`, {
 			headers: {
 				Authorization: `Bearer ${auth.token}`,
 			},
 		})
 			.then((res) => res.json())
 			.then((data) => setThread(data.data))
-		fetch(`http://localhost:3000/api/v1/reply/${threadId}/`, {
+		fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/reply/${threadId}/`, {
 			headers: {
 				Authorization: `Bearer ${auth.token}`,
 			},

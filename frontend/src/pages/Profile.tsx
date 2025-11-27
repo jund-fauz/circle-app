@@ -19,13 +19,16 @@ export function Profile() {
 
 	useEffect(() => {
 		if (selected === 'posts')
-			fetch('http://localhost:3000/api/v1/thread?limit=100&byUser=true', {
-				headers: { Authorization: `Bearer ${token}` },
-			})
+			fetch(
+				`${import.meta.env.VITE_BASE_URL}/api/v1/thread?limit=100&byUser=true`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				}
+			)
 				.then((res) => res.json())
 				.then((data) => setThreads(data.threads))
 		else
-			fetch('http://localhost:3000/api/v1/thread/pictures', {
+			fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/thread/pictures`, {
 				headers: { Authorization: `Bearer ${token}` },
 			})
 				.then((res) => res.json())
@@ -43,7 +46,9 @@ export function Profile() {
 				{profile.photo_profile ? (
 					<img
 						className='ms-4 rounded-full border-(--primary-color) border-2 w-15 h-15'
-						src={`http://localhost:3000/uploads/${profile.photo_profile}`}
+						src={`${import.meta.env.VITE_BASE_URL}/uploads/${
+							profile.photo_profile
+						}`}
 						alt={profile.full_name}
 					/>
 				) : (
@@ -94,7 +99,9 @@ export function Profile() {
 										src={
 											image.image.startsWith('http')
 												? image.image
-												: `http://localhost:3000/uploads/${image.image}`
+												: `${import.meta.env.VITE_BASE_URL}/uploads/${
+														image.image
+												  }`
 										}
 										key={index}
 									/>

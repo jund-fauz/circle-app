@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { prisma } from '../connection/client'
 import { threadSchema } from '../validation/thread'
 import { errorFunc } from '../middlewares/errorHandler'
+import { redis } from '../utils/redis'
 
 /**
  * @swagger
@@ -126,6 +127,7 @@ export async function postReply(req: Request, res: Response) {
 	const { threadId } = req.params
 	if (!threadId) throw { status: 400, message: 'Thread ID is required' }
 	try {
+		await redis.del('threads')
 		const { error } = threadSchema.validate(req.body)
 		if (error) throw { status: 400, message: error.message }
 		const { content } = req.body

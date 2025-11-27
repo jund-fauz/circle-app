@@ -2,13 +2,7 @@ import { Request, Response } from 'express'
 import { prisma } from '../connection/client'
 import { threadSchema } from '../validation/thread'
 import { errorFunc } from '../middlewares/errorHandler'
-import Redis from 'ioredis'
-
-const redis = new Redis({
-	host: 'localhost',
-	port: 6379,
-	db: 0,
-})
+import { redis } from '../utils/redis'
 
 /**
  * @swagger

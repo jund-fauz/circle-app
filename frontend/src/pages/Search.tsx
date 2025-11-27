@@ -22,9 +22,14 @@ export function Search() {
 
 	useEffect(() => {
 		if (debouncedInput)
-			fetch(`http://localhost:3000/api/v1/search?keyword=${debouncedInput}`, {
-				headers: { Authorization: `Bearer ${token}` },
-			})
+			fetch(
+				`${
+					import.meta.env.VITE_BASE_URL
+				}/api/v1/search?keyword=${debouncedInput}`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				}
+			)
 				.then((res) => res.json())
 				.then((data) => setUsers(data.data.users))
 	}, [debouncedInput])
@@ -43,7 +48,10 @@ export function Search() {
 				</InputGroupAddon>
 				{input && (
 					<InputGroupAddon align='inline-end'>
-						<CircleX className='hover:cursor-pointer' onClick={() => setInput('')} />
+						<CircleX
+							className='hover:cursor-pointer'
+							onClick={() => setInput('')}
+						/>
 					</InputGroupAddon>
 				)}
 			</InputGroup>
@@ -54,7 +62,9 @@ export function Search() {
 							{user.photo_profile ? (
 								<img
 									className='rounded-full w-8 h-8'
-									src={`http://localhost:3000/uploads/${user.photo_profile}`}
+									src={`${import.meta.env.VITE_BASE_URL}/uploads/${
+										user.photo_profile
+									}`}
 									alt={user.full_name}
 								/>
 							) : (
@@ -66,57 +76,58 @@ export function Search() {
 								<p>{user.bio}</p>
 							</div>
 						</div>
-						{user.id !== profile.id && (profile.followings.some(
-							(following: any) => following.follower_id === user.id
-						) ? (
-							<Button
-								className='w-fit bg-(--secondary-color) border rounded-4xl hover:cursor-pointer brightness-75'
-								onClick={() =>
-									fetch('http://localhost:3000/api/v1/follows', {
-										headers: {
-											Authorization: `Bearer ${token}`,
-											'Content-Type': 'application/json',
-										},
-										method: 'DELETE',
-										body: JSON.stringify({
-											followed_user_id: user.id,
-										}),
-									})
-										.then((res) => res.json())
-										.then(
-											(data) =>
-												data.status === 'success' &&
-												dispatch(unfollowSomeone(data.data.user_id))
-										)
-								}
-							>
-								Following
-							</Button>
-						) : (
-							<Button
-								className='w-fit bg-(--secondary-color) border rounded-4xl hover:cursor-pointer'
-								onClick={() =>
-									fetch('http://localhost:3000/api/v1/follows', {
-										headers: {
-											Authorization: `Bearer ${token}`,
-											'Content-Type': 'application/json',
-										},
-										method: 'POST',
-										body: JSON.stringify({
-											followed_user_id: user.id,
-										}),
-									})
-										.then((res) => res.json())
-										.then(
-											(data) =>
-												data.status === 'success' &&
-												dispatch(followSomeone(data.data.user_id))
-										)
-								}
-							>
-								Follow
-							</Button>
-						))}
+						{user.id !== profile.id &&
+							(profile.followings.some(
+								(following: any) => following.follower_id === user.id
+							) ? (
+								<Button
+									className='w-fit bg-(--secondary-color) border rounded-4xl hover:cursor-pointer brightness-75'
+									onClick={() =>
+										fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/follows`, {
+											headers: {
+												Authorization: `Bearer ${token}`,
+												'Content-Type': 'application/json',
+											},
+											method: 'DELETE',
+											body: JSON.stringify({
+												followed_user_id: user.id,
+											}),
+										})
+											.then((res) => res.json())
+											.then(
+												(data) =>
+													data.status === 'success' &&
+													dispatch(unfollowSomeone(data.data.user_id))
+											)
+									}
+								>
+									Following
+								</Button>
+							) : (
+								<Button
+									className='w-fit bg-(--secondary-color) border rounded-4xl hover:cursor-pointer'
+									onClick={() =>
+										fetch(`${import.meta.env.VITE_BASE_URL}/api/v1/follows`, {
+											headers: {
+												Authorization: `Bearer ${token}`,
+												'Content-Type': 'application/json',
+											},
+											method: 'POST',
+											body: JSON.stringify({
+												followed_user_id: user.id,
+											}),
+										})
+											.then((res) => res.json())
+											.then(
+												(data) =>
+													data.status === 'success' &&
+													dispatch(followSomeone(data.data.user_id))
+											)
+									}
+								>
+									Follow
+								</Button>
+							))}
 					</div>
 				))}
 		</div>
