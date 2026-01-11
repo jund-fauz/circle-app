@@ -30,9 +30,9 @@ CREATE TABLE "Threads" (
     "content" TEXT NOT NULL,
     "image" TEXT NOT NULL DEFAULT '',
     "number_of_replies" INTEGER NOT NULL DEFAULT 0,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "created_by" INTEGER NOT NULL,
-    "updated_at" TIMESTAMP(3) NOT NULL,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL,
     "updated_by" INTEGER NOT NULL,
 
     CONSTRAINT "Threads_pkey" PRIMARY KEY ("id")
@@ -43,10 +43,10 @@ CREATE TABLE "Replies" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
     "thread_id" INTEGER NOT NULL,
-    "image" TEXT NOT NULL,
+    "image" TEXT NOT NULL DEFAULT '',
     "content" TEXT NOT NULL,
-    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMPTZ(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ(6) NOT NULL,
     "updated_by" INTEGER NOT NULL,
 
     CONSTRAINT "Replies_pkey" PRIMARY KEY ("id")
@@ -56,7 +56,8 @@ CREATE TABLE "Replies" (
 CREATE TABLE "Likes" (
     "id" SERIAL NOT NULL,
     "user_id" INTEGER NOT NULL,
-    "thread_id" INTEGER NOT NULL,
+    "thread_id" INTEGER,
+    "reply_id" INTEGER,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
 
@@ -94,4 +95,7 @@ ALTER TABLE "Replies" ADD CONSTRAINT "Replies_thread_id_fkey" FOREIGN KEY ("thre
 ALTER TABLE "Likes" ADD CONSTRAINT "Likes_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Likes" ADD CONSTRAINT "Likes_thread_id_fkey" FOREIGN KEY ("thread_id") REFERENCES "Threads"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Likes" ADD CONSTRAINT "Likes_thread_id_fkey" FOREIGN KEY ("thread_id") REFERENCES "Threads"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Likes" ADD CONSTRAINT "Likes_reply_id_fkey" FOREIGN KEY ("reply_id") REFERENCES "Replies"("id") ON DELETE SET NULL ON UPDATE CASCADE;
