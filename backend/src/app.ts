@@ -19,12 +19,12 @@ import { swaggerSpec } from './swagger/swagger.config'
 const app = express()
 const server = http.createServer(app)
 const io = new Server(server, {
-	cors: { origin: 'http://localhost:5173', methods: ['GET', 'POST'] },
+	cors: { origin: ['http://localhost:5173', 'https://circle-app-frontend-self.vercel.app'], methods: ['GET', 'POST'] },
 })
 
 dotenv.config()
 app.use(json())
-app.use(cors({ origin: 'http://localhost:5173' }))
+app.use(cors({ origin: ['http://localhost:5173', 'https://circle-app-frontend-self.vercel.app'] }))
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 app.use('/api/v1/auth', authRouter)
